@@ -1,0 +1,48 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+/// Modelo de tareas con todas las buenas prácticas implementadas
+model Todo {
+  /// Identificador único del registro
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Título de la tarea (máximo 100 caracteres, requerido)
+  title String @db.VarChar(100)
+
+  /// Slug único y normalizado para URLs amigables
+  slug String @unique @db.VarChar(100)
+
+  /// Descripción detallada de la tarea (opcional, texto largo)
+  description String? @db.Text
+
+  /// Estado de completación de la tarea
+  completed Boolean @default(false) @db.Boolean
+
+  /// Fecha de creación del registro (auto-generado)
+  createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
+
+  /// Fecha de última actualización (auto-actualizado)
+  updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(3)
+
+  /// Índice para búsquedas por título
+  @@index([title])
+  /// Índice para búsquedas por estado de completación
+  @@index([completed])
+  /// Índice para búsquedas por fecha de creación (útil para ordenamientos)
+  @@index([createdAt])
+  /// Índice compuesto para búsquedas combinadas (estado + fecha)
+  @@index([completed, createdAt])
+  /// Nombre de la tabla en base de datos (plural, snake_case)
+  @@map("todos")
+}
