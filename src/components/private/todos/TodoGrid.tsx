@@ -19,10 +19,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Search, FilterX } from "lucide-react";
 import { ITodo } from "@/types";
-import { User } from "better-auth";
+
 
 interface IProps {
-    currentUser: User;
+    currentUserId: string;
 }
 type FilterStatus = "all" | "completed" | "incomplete";
 /**
@@ -61,9 +61,9 @@ const filterAndSearchTodos = (
 };
 
 export const TodosGrid = (
-    { currentUser }: IProps
+    { currentUserId }: IProps
 ) => {
-    const { data: response, isLoading, isError } = useTodosQuery(currentUser.id);
+    const { data: response, isLoading, isError } = useTodosQuery(currentUserId);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [filterStatus, setFilterStatus] =
         useState<FilterStatus>("all");
@@ -157,7 +157,7 @@ export const TodosGrid = (
                 {hasResults ? (
                     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
                         {filteredTodos.map((todo) => (
-                            <TodoCard key={todo.id} todo={todo} />
+                            <TodoCard key={todo.id} todo={todo} currentUserId={currentUserId} />
                         ))}
                     </div>
                 ) : (

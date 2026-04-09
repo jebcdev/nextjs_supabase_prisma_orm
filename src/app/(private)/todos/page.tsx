@@ -15,7 +15,9 @@ import {
 import { getSessionDetails } from "@/actions";
 
 import { TodosGrid } from "@/components/private/todos/TodoGrid";
-import { User } from "better-auth";
+import { Suspense } from "react";
+import { NoData } from "@/components/ui";
+
 
 export async function generateMetadata(): Promise<Metadata> {
     return {
@@ -41,10 +43,16 @@ export default async function HomePage() {
                 </p>
             </div>
             <div className="w-full">
-                <TodosGrid
-                    isAuthenticated={!!currentUser}
-                    currentUser={currentUser as User}
-                />
+                <Suspense fallback={<div>Cargando tareas...</div>}>
+                    {
+                        currentUser ? (
+                            <TodosGrid currentUserId={currentUser.id} />
+                        ) : (
+                            <NoData />
+                        )
+
+                    }
+                </Suspense>
             </div>
         </main>
     );

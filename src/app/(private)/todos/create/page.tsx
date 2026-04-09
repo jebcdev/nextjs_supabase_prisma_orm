@@ -15,6 +15,7 @@ import { TodoFormNew } from "@/components/private/todos/TodoFormNew";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { getSessionDetails } from "@/actions";
 
 export async function generateMetadata(): Promise<Metadata> {
     return {
@@ -25,7 +26,8 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default function CreateTodoPage() {
+export default async function CreateTodoPage() {
+    const {currentUser} = await getSessionDetails();
     return (
         <div className="min-h-[calc(100vh-3.5rem)] bg-[radial-gradient(ellipse_at_top,var(--tw-gradient-stops))] from-primary/5 via-background to-background">
             <main className="mx-auto max-w-2xl px-4 py-10 md:py-16">
@@ -64,7 +66,7 @@ export default function CreateTodoPage() {
                     <div className="absolute -bottom-3 -left-3 h-24 w-24 bg-primary/10 blur-3xl" />
 
                     <div className="relative">
-                        <TodoFormNew />
+                        <TodoFormNew currentUserId={currentUser?.id!} />
                     </div>
                 </section>
 

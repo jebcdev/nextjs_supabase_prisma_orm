@@ -29,9 +29,13 @@ import Link from "next/link";
 import { Save, ArrowLeft, Info, Lock } from "lucide-react";
 import { slugify } from "@/lib/utils/slugify";
 
-export const TodoFormNew = () => {
+interface IProps {
+    currentUserId: string;
+}
+
+export const TodoFormNew = ({ currentUserId }: IProps) => {
     const router = useRouter();
-    const mutation = useCreateTodoMutation();
+    const mutation = useCreateTodoMutation(currentUserId);
 
     const {
         register,

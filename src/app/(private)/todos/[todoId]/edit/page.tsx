@@ -6,7 +6,7 @@
  */
 "use server";
 
-import { getTodoById } from "@/actions";
+import { getSessionDetails, getTodoById } from "@/actions";
 import { TodoFormEdit } from "@/components/private/todos/TodoFormEdit";
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
@@ -18,6 +18,7 @@ interface EditTodoPageProps {
 export default async function EditTodoPage({
     params,
 }: EditTodoPageProps) {
+    const { currentUser } = await getSessionDetails();
     const { todoId } = await params;
     const result = await getTodoById(todoId);
 
@@ -44,7 +45,7 @@ export default async function EditTodoPage({
 
     return (
         <div className="container mx-auto px-4 py-8 max-w-3xl">
-            <TodoFormEdit initialTodo={todo} />
+            <TodoFormEdit initialTodo={todo} currentUserId={currentUser?.id!} />
         </div>
     );
 }

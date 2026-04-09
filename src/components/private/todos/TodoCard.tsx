@@ -37,15 +37,16 @@ import { consoleLogger } from "@/lib/logger/console-logger";
 
 interface IProps {
     todo: ITodo;
+    currentUserId: string; // Opcional, por si se necesita para validaciones adicionales
 }
 
-export const TodoCard = ({ todo }: IProps) => {
+export const TodoCard = ({ todo, currentUserId }: IProps) => {
     const router = useRouter();
     const [isToggling, setIsToggling] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const toggleMutation = useToggleTodoMutation();
-    const deleteMutation = useDeleteTodoMutation();
+    const deleteMutation = useDeleteTodoMutation(currentUserId);
+    const toggleMutation = useToggleTodoMutation(currentUserId);
 
     const handleToggleCompleted = async () => {
         if (!todo.id) {
@@ -78,7 +79,7 @@ export const TodoCard = ({ todo }: IProps) => {
         deleteMutation.mutate(todo.id, {
             onSuccess: () => {
                 toast.success("Tarea eliminada exitosamente");
-                router.push("/");
+                router.push("/todos");
             },
             onError: (error) => {
                 toast.error(
@@ -90,11 +91,11 @@ export const TodoCard = ({ todo }: IProps) => {
     };
 
     const handleViewDetails = () => {
-        router.push(`/${todo.id}`);
+        router.push(`/todos/${todo.id}`);
     };
 
     const handleEdit = () => {
-        router.push(`/${todo.id}/edit`);
+        router.push(`/todos/${todo.id}/edit`);
     };
     return (
         <Card className="w-full transition-all duration-200 hover:shadow-md group border-l-4 border-l-primary/20">

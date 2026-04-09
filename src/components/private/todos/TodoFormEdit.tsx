@@ -32,15 +32,17 @@ import { slugify } from "@/lib/utils/slugify";
 
 interface IFormEditProps {
     initialTodo: ITodo;
+    currentUserId: string;
     onSuccess?: () => void;
 }
 
 export const TodoFormEdit = ({
     initialTodo,
+    currentUserId,
     onSuccess,
 }: IFormEditProps) => {
     const router = useRouter();
-    const mutation = useUpdateTodoMutation();
+    const mutation = useUpdateTodoMutation(currentUserId);
 
     const {
         register,
