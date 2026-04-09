@@ -13,6 +13,71 @@ datasource db {
 }
 
 /// Modelo de tareas con todas las buenas prácticas implementadas
+
+model User {
+  id            String    @id
+  name          String
+  email         String
+  emailVerified Boolean   @default(false)
+  image         String?
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  todos         Todo[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  @@index([identifier])
+  @@map("verification")
+}
+
 model Todo {
   /// Identificador único del registro
   id String @id @default(uuid()) @db.Uuid
@@ -29,6 +94,12 @@ model Todo {
   /// Estado de completación de la tarea
   completed Boolean @default(false) @db.Boolean
 
+  /// Identificador del usuario propietario de la tarea
+  userId String
+
+  /// Relación con el usuario propietario
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
   /// Fecha de creación del registro (auto-generado)
   createdAt DateTime @default(now()) @map("created_at") @db.Timestamp(3)
 
@@ -36,13 +107,15 @@ model Todo {
   updatedAt DateTime @updatedAt @map("updated_at") @db.Timestamp(3)
 
   /// Índice para búsquedas por título
-  @@index([title])
   /// Índice para búsquedas por estado de completación
-  @@index([completed])
   /// Índice para búsquedas por fecha de creación (útil para ordenamientos)
-  @@index([createdAt])
   /// Índice compuesto para búsquedas combinadas (estado + fecha)
-  @@index([completed, createdAt])
+  /// Índice para búsquedas por usuario
   /// Nombre de la tabla en base de datos (plural, snake_case)
+  @@index([title])
+  @@index([completed])
+  @@index([createdAt])
+  @@index([completed, createdAt])
+  @@index([userId])
   @@map("todos")
 }

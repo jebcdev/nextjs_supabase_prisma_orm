@@ -7,8 +7,11 @@ import {
     generateAsyncDescription,
 } from "@/lib/seo/metadataGenerator";
 import TanStackQueryProvider from "@/components/providers/TanStackQueryProvider";
-import { NavBar } from "@/components/layouts/root/nav-bar";
+import { PublicHeader } from "@/components/public/Header";
+import { getSessionDetails } from "@/actions";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
+import { Toaster } from "sonner";
 const jetbrainsMono = JetBrains_Mono({
     subsets: ["latin"],
     variable: "--font-mono",
@@ -33,11 +36,14 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
-export default function RootLayout({
+export default async function RootLayout({
     children,
 }: Readonly<{
     children: React.ReactNode;
 }>) {
+    const { isAuthenticated, currentUser } =
+        await getSessionDetails();
+
     return (
         <html
             lang="en"
@@ -53,8 +59,18 @@ export default function RootLayout({
         >
             <body className="dark min-h-full flex flex-col scrollbar-gutter-stable">
                 <TanStackQueryProvider>
-                    <NavBar />
-                    {children}
+                    <PublicHeader
+                        isAuthenticated={isAuthenticated}
+                        currentUser={currentUser}
+                    />
+                    <TooltipProvider>{children}</TooltipProvider>
+                    <Toaster
+                        duration={2000}
+                        position="top-right"
+                        richColors
+                        closeButton
+                        theme="dark"
+                    />
                 </TanStackQueryProvider>
             </body>
         </html>
