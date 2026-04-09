@@ -5,7 +5,7 @@ import { prismaDB } from "@/lib/db/prismaDB";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
 import { TodoUpdateSchema } from "@/schemas/";
-import { validateSessionAndOwnership } from "@/lib/auth/auth-helpers";
+import { validateTodoOwnership } from "@/lib/auth/auth-helpers";
 import { uuidSchema } from "@/schemas";
 
 /**
@@ -44,9 +44,14 @@ export const updateTodo = async (
         }
 
         // 3. Validar sesión y propiedad del TODO
-        const authResult = await validateSessionAndOwnership(todo.id);
-        if ("message" in authResult) {
-            return authResult;
+        const authResult = await validateTodoOwnership(todo.id);
+        if (!authResult) {
+            return {
+                error: true,
+                success: false,
+                message:
+                    "No autorizado. No tienes permiso para actualizar este TODO.",
+            };
         }
 
         // 4. Validar datos del TODO

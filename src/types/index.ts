@@ -1,2 +1,3 @@
-export * from './general-response';
-export * from './todo.type';
+export type { IGeneralResponse } from "./general-response";
+export type { ITodo, ITodosInput, ITodosUpdate } from "./todo.type";
+export type { CurrentUser } from "./auth/current-user.type";

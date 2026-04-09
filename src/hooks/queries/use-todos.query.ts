@@ -12,20 +12,13 @@ import { getAllTodos, getTodoById } from "@/actions/";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
 
-// ──────────────────────────────────────────
-// QUERY KEYS — centralizadas para reusar en invalidateQueries
-// ──────────────────────────────────────────
-export const todoKeys = {
-    all: () => ["todos"] as const,
-    detail: (id: string) => ["todos", id] as const,
-};
 
 // ──────────────────────────────────────────
 // GET ALL
 // ──────────────────────────────────────────
-export const useTodosQuery = () =>
+export const useTodosQuery = (userId:string) =>
     useQuery<IGeneralResponse<ITodo[]>>({
-        queryKey: todoKeys.all(),
+        queryKey: ["todos", { userId }],
         queryFn: () => getAllTodos(),
         staleTime: 1000 * 60 * 60, 
     });
@@ -35,7 +28,7 @@ export const useTodosQuery = () =>
 // ──────────────────────────────────────────
 export const useTodoQuery = (id: string) =>
     useQuery<IGeneralResponse<ITodo>>({
-        queryKey: todoKeys.detail(id),
+        queryKey: ["todos", { id }],
         queryFn: () => getTodoById(id),
         staleTime: 1000 * 60 * 60,
         enabled: !!id, // no ejecuta si id está vacío

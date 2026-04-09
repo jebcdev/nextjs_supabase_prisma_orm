@@ -4,42 +4,45 @@ import { consoleLogger } from "@/lib/logger/console-logger";
 import { prismaDB } from "@/lib/db/prismaDB";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
+import { getSessionDetails } from "../auth";
 
-
-/**
- * Obtiene todos los TODOs del usuario autenticado.
- *
- * @returns {Promise<IGeneralResponse<ITodo[]>>} Una respuesta que contiene los TODOs del usuario o un mensaje de error
- *
- * @example
- * const result = await getAllTodos();
- * if (result.success) {
- *   console.log('TODOs obtenidos:', result.data);
- * }
- */
 export const getAllTodos = async (): Promise<
     IGeneralResponse<ITodo[]>
 > => {
     try {
-        // 1. Validar sesión
-        const sessionResult = await validateSession();
-        if ("message" in sessionResult) {
-            return sessionResult;
-        }
-        const { userId } = sessionResult;
+        const { isAuthenticated, currentUser } =
+            await getSessionDetails();
 
-        // 2. Obtener todos los TODOs del usuario autenticado
+        if (!isAuthenticated || !currentUser) {
+            return {
+                success: false,
+                error: true,
+                message:
+                    "No autorizado. Inicia sesión para continuar.",
+            };
+        }
+        consoleLogger({ "currentUser.id": currentUser.id });
         const todos = await prismaDB.todo.findMany({
-            where: { userId },
+            where: { userId: currentUser.id },
             orderBy: { createdAt: "desc" },
         });
 
+        if (todos.length === 0) {
+            consoleLogger({
+                message: "No se encontraron TODOs para el usuario.",
+                userId: currentUser.id,
+            });
+
+            return {
+                success: false,
+                error: true,
+                message: "No tienes TODOs aún",
+            };
+        }
+        consoleLogger({ todos });
         return {
             success: true,
-            message:
-                todos.length === 0
-                    ? "No tienes TODOs aún"
-                    : "TODOs obtenidos exitosamente",
+            message: "TODOs obtenidos exitosamente",
             data: todos,
         };
     } catch (error) {

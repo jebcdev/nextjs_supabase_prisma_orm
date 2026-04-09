@@ -4,7 +4,7 @@ import { consoleLogger } from "@/lib/logger/console-logger";
 import { prismaDB } from "@/lib/db/prismaDB";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
-import { validateSessionAndOwnership } from "@/lib/auth/auth-helpers";
+import { validateTodoOwnership } from "@/lib/auth/auth-helpers";
 import { uuidSchema } from "@/schemas";
 
 /**
@@ -34,9 +34,14 @@ export const toggleTodoCompleted = async (
         }
 
         // 2. Validar sesión y propiedad del TODO
-        const authResult = await validateSessionAndOwnership(id);
-        if ("message" in authResult) {
-            return authResult;
+        const authResult = await validateTodoOwnership(id);
+        if (!authResult) {
+            return {
+                error: true,
+                success: false,
+                message:
+                    "No autorizado. No tienes permiso para actualizar este TODO.",
+            };
         }
 
         // 3. Obtener el TODO actual para saber su estado

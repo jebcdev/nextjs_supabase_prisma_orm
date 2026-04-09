@@ -22,7 +22,6 @@ import { ITodo } from "@/types";
 import { User } from "better-auth";
 
 interface IProps {
-    isAuthenticated: boolean;
     currentUser: User;
 }
 type FilterStatus = "all" | "completed" | "incomplete";
@@ -64,7 +63,7 @@ const filterAndSearchTodos = (
 export const TodosGrid = (
     { currentUser }: IProps
 ) => {
-    const { data: response, isLoading, isError } = useTodosQuery();
+    const { data: response, isLoading, isError } = useTodosQuery(currentUser.id);
     const [searchQuery, setSearchQuery] = useState<string>("");
     const [filterStatus, setFilterStatus] =
         useState<FilterStatus>("all");

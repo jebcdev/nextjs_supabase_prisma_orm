@@ -4,8 +4,9 @@ import { consoleLogger } from "@/lib/logger/console-logger";
 import { prismaDB } from "@/lib/db/prismaDB";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
-import { validateSessionAndOwnership } from "@/lib/auth/auth-helpers";
+import { getSessionDetails } from "../auth";
 import { uuidSchema } from "@/schemas";
+import { validateTodoOwnership } from "@/lib/auth/auth-helpers";
 
 /**
  * Elimina un TODO del usuario autenticado por su ID.
@@ -24,19 +25,26 @@ export const deleteTodo = async (
 ): Promise<IGeneralResponse<ITodo>> => {
     try {
         // 1. Validar formato del ID
-        const idValidation = uuidSchema.safeParse(id);
-        if (!idValidation.success) {
+        const { currentUser, isAuthenticated } =
+            await getSessionDetails();
+        if (!isAuthenticated || !currentUser) {
             return {
-                error: true,
                 success: false,
-                message: "ID del TODO no es válido",
+                error: true,
+                message:
+                    "No autorizado. Inicia sesión para continuar.",
             };
         }
 
         // 2. Validar sesión y propiedad del TODO
-        const authResult = await validateSessionAndOwnership(id);
-        if ("message" in authResult) {
-            return authResult;
+        const authResult = await validateTodoOwnership(id);
+        if (!authResult) {
+            return {
+                success: false,
+                error: true,
+                message:
+                    "No autorizado. No tienes permiso para eliminar este TODO.",
+            };
         }
 
         // 3. Eliminar TODO

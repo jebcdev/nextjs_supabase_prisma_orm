@@ -1,14 +1,3 @@
-/**
- * Hooks para mutaciones de TODOs.
- *
- * Proporciona hooks de React Query (useMutation) para operaciones que modifican datos:
- * - Crear nuevos TODOs
- * - Actualizar TODOs existentes
- * - Eliminar TODOs
- * - Cambiar estado de completitud
- *
- * Cada mutation invalida automáticamente el cache para refrescar datos.
- */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import {
     createTodo,
@@ -18,19 +7,18 @@ import {
 } from "@/actions/";
 import { ITodo } from "@/types/";
 import { TTodoCreateData } from "@/schemas/";
-import { todoKeys } from "../queries/use-todos.query";
 
 // ──────────────────────────────────────────
 // CREATE
 // ──────────────────────────────────────────
-export const useCreateTodoMutation = () => {
+export const useCreateTodoMutation = (userId: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (data: TTodoCreateData) => createTodo(data),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: todoKeys.all(),
+                queryKey: ["todos", { userId }],
             });
         },
     });
@@ -39,7 +27,7 @@ export const useCreateTodoMutation = () => {
 // ──────────────────────────────────────────
 // UPDATE
 // ──────────────────────────────────────────
-export const useUpdateTodoMutation = () => {
+export const useUpdateTodoMutation = (userId: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
@@ -48,7 +36,7 @@ export const useUpdateTodoMutation = () => {
         ) => updateTodo(data),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: todoKeys.all(),
+                queryKey: ["todos", { userId }],
             });
         },
     });
@@ -57,14 +45,14 @@ export const useUpdateTodoMutation = () => {
 // ──────────────────────────────────────────
 // DELETE
 // ──────────────────────────────────────────
-export const useDeleteTodoMutation = () => {
+export const useDeleteTodoMutation = (userId: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (id: string) => deleteTodo(id),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: todoKeys.all(),
+                queryKey: ["todos", { userId }],
             });
         },
     });
@@ -73,14 +61,14 @@ export const useDeleteTodoMutation = () => {
 // ──────────────────────────────────────────
 // TOGGLE COMPLETED
 // ──────────────────────────────────────────
-export const useToggleTodoMutation = () => {
+export const useToggleTodoMutation = (userId: string) => {
     const queryClient = useQueryClient();
 
     return useMutation({
         mutationFn: (id: string) => toggleTodoCompleted(id),
         onSuccess: () => {
             queryClient.invalidateQueries({
-                queryKey: todoKeys.all(),
+                queryKey: ["todos", { userId }],
             });
         },
     });

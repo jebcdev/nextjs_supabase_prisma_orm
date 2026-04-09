@@ -61,7 +61,7 @@ export default async function RootLayout({
                 <TanStackQueryProvider>
                     <PublicHeader
                         isAuthenticated={isAuthenticated}
-                        currentUser={currentUser}
+                        currentUser={currentUser!}
                     />
                     <TooltipProvider>{children}</TooltipProvider>
                     <Toaster

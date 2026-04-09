@@ -5,7 +5,7 @@ import { prismaDB } from "@/lib/db/prismaDB";
 import { IGeneralResponse } from "@/types";
 import { ITodo } from "@/types/todo.type";
 import { TodoCreateSchema } from "@/schemas";
-import { validateSession } from "@/lib/auth/auth-helpers";
+import { getSessionDetails } from "../auth";
 
 /**
  * Crea un nuevo TODO en la base de datos para el usuario autenticado.
@@ -24,11 +24,17 @@ export const createTodo = async (
 ): Promise<IGeneralResponse<ITodo>> => {
     try {
         // 1. Validar sesión
-        const sessionResult = await validateSession();
-        if ("message" in sessionResult) {
-            return sessionResult;
+        const { isAuthenticated, currentUser } =
+            await getSessionDetails();
+        if (!isAuthenticated || !currentUser) {
+            return {
+                success: false,
+                error: true,
+                message:
+                    "No autorizado. Inicia sesión para continuar.",
+            };
         }
-        const { userId } = sessionResult;
+        const userId = currentUser.id;
 
         // 2. Validar datos del TODO
         const validatedTodoData = TodoCreateSchema.safeParse(todo);
